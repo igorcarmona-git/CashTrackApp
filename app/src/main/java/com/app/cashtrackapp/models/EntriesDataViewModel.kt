@@ -41,8 +41,7 @@ class EntriesDataViewModel : ViewModel() {
             return
         }
 
-        // ===== ENVIANDO PARA O FIREBASE =====
-        // Avisa à tela: "estou a enviar, por favor mostre um loading"
+        // Enviando, estado de loading
         _submitState.value = SubmitState.Submitting
 
         // Cria o objeto que será salvo no Firebase
