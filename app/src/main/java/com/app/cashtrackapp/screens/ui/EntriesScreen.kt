@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -19,6 +21,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.cashtrackapp.models.EntriesDataViewModel
@@ -30,7 +34,10 @@ import com.app.cashtrackapp.screens.ui.components.ValueField
 import java.util.Calendar
 
 @Composable
-fun EntriesScreen(modifier: Modifier = Modifier, viewModel: EntriesDataViewModel = viewModel()) {
+fun EntriesScreen(
+    modifier: Modifier = Modifier,
+    viewModel: EntriesDataViewModel = viewModel(),
+) {
     // Monitora mudanças no estado do ViewModel
     // Sempre que submitState mudar, a tela atualiza automaticamente
     val submitState by viewModel.submitState.collectAsState()
@@ -42,6 +49,17 @@ fun EntriesScreen(modifier: Modifier = Modifier, viewModel: EntriesDataViewModel
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Permite dar foco programaticamente no campo de valor
+    val valueFocusRequester = remember { FocusRequester() }
+
+    val clearFields: () -> Unit = {
+        valueText = ""
+        description = ""
+        dateMillis = Calendar.getInstance().timeInMillis
+        type = "Crédito"
+        valueFocusRequester.requestFocus()
+    }
+
     // REAGE ÀS MUDANÇAS DE ESTADO
     // Sempre que submitState muda, este bloco é executado
     LaunchedEffect(submitState) {
@@ -50,11 +68,7 @@ fun EntriesScreen(modifier: Modifier = Modifier, viewModel: EntriesDataViewModel
                 snackbarHostState.showSnackbar("Lançamento salvo com sucesso")
                 viewModel.resetState()
 
-                // Limpa os campos para nova entrada
-                valueText = ""
-                description = ""
-                dateMillis = Calendar.getInstance().timeInMillis
-                type = "Crédito"
+                clearFields()
             }
 
             // Estado: Erro ao tentar salvar
@@ -83,7 +97,9 @@ fun EntriesScreen(modifier: Modifier = Modifier, viewModel: EntriesDataViewModel
         ValueField(
             value = valueText,
             onValueChange = { valueText = it },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(valueFocusRequester)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -134,9 +150,21 @@ fun EntriesScreen(modifier: Modifier = Modifier, viewModel: EntriesDataViewModel
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        Button(
+            onClick = clearFields,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 8.dp)
+        ) {
+            Text("Limpar")
+        }
+
         SnackbarHost(hostState = snackbarHostState)
+
     }
+
 }
-
-
-

@@ -1,12 +1,10 @@
 package com.app.cashtrackapp.screens.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +20,7 @@ fun TypeSelector(
     onTypeSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val tiposDisponiveis = listOf("Crédito", "Despesa")
+    val typesAvailable = listOf("Crédito", "Despesa")
     var expanded by remember { mutableStateOf(false) }
 
     Box(modifier = modifier) {
@@ -39,15 +37,13 @@ fun TypeSelector(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .background(MaterialTheme.colorScheme.surface)
+            modifier = Modifier.fillMaxWidth(0.9f)
         ) {
-            tiposDisponiveis.forEach { tipo ->
+            typesAvailable.forEach { type ->
                 DropdownMenuItem(
-                    text = { Text(tipo) },
+                    text = { Text(type) },
                     onClick = {
-                        onTypeSelected(tipo)
+                        onTypeSelected(type)
                         expanded = false
                     }
                 )
@@ -55,4 +51,3 @@ fun TypeSelector(
         }
     }
 }
-
