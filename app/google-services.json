@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "361198828002",
+    "project_id": "cashtrack-app-18276",
+    "storage_bucket": "cashtrack-app-18276.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:361198828002:android:a5c20519c7b19b259161bb",
+        "android_client_info": {
+          "package_name": "com.app.cashtrackapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSAB89NZxSAkkXi10hR7D4BFR4Q3-Q_wY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

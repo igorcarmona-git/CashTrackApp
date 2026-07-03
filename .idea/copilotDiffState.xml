@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="/BankDataType (snapshot).kt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="/BankDataType (snapshot).kt" />
+              <option name="originalContent" value="package com.app.cashtrackapp.entity&#10;&#10;import java.util.Date&#10;&#10;data class BankDataType(&#10;    val op: String,&#10;    val opDate: Date,&#10;    val opDescription: String,&#10;    val opValue: Double&#10;)&#10;" />
+              <option name="updatedContent" value="package com.app.cashtrackapp.entity&#10;&#10;// Usar tipos primitivos e valores default facilita a serialização com o Firebase&#10;data class BankDataType(&#10;    val op: String = &quot;&quot;,&#10;    val opDate: Long = 0L, // epoch millis&#10;    val opDescription: String = &quot;&quot;,&#10;    val opValue: Double = 0.0&#10;)&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="/EntriesDataViewModel (snapshot).kt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="/EntriesDataViewModel (snapshot).kt" />
+              <option name="originalContent" value="package com.app.cashtrackapp.models&#10;&#10;import androidx.lifecycle.ViewModel&#10;import androidx.lifecycle.viewModelScope&#10;import com.app.cashtrackapp.database.classes.LancamentosHandler&#10;import com.app.cashtrackapp.entity.EntryDataType&#10;import kotlinx.coroutines.flow.MutableStateFlow&#10;import kotlinx.coroutines.flow.StateFlow&#10;import kotlinx.coroutines.launch&#10;&#10;sealed class SubmitState {&#10;    object Idle : SubmitState()&#10;    object Submitting : SubmitState()&#10;    object Success : SubmitState()&#10;    data class Error(val message: String) : SubmitState()&#10;}&#10;&#10;class EntriesDataViewModel : ViewModel() {&#10;    private val _submitState = MutableStateFlow&lt;SubmitState&gt;(SubmitState.Idle)&#10;    val submitState: StateFlow&lt;SubmitState&gt; = _submitState&#10;&#10;    fun submitEntry(type: String, value: Double, description: String, dateMillis: Long) {&#10;        if (value &lt;= 0.0) {&#10;            _submitState.value = SubmitState.Error(&quot;Valor deve ser maior que 0&quot;)&#10;            return&#10;        }&#10;        if (description.isBlank()) {&#10;            _submitState.value = SubmitState.Error(&quot;Descrição não pode ser vazia&quot;)&#10;            return&#10;        }&#10;&#10;        _submitState.value = SubmitState.Submitting&#10;&#10;        val entry = EntryDataType(&#10;            op = type,&#10;            opDate = dateMillis,&#10;            opDescription = description,&#10;            opValue = value&#10;        )&#10;&#10;        LancamentosHandler.inserirLancamento(entry) { success, error -&gt;&#10;            viewModelScope.launch {&#10;                if (success) {&#10;                    _submitState.value = SubmitState.Success&#10;                } else {&#10;                    _submitState.value =&#10;                        SubmitState.Error(error?.localizedMessage ?: &quot;Erro ao salvar&quot;)&#10;                }&#10;            }&#10;        }&#10;    }&#10;&#10;    fun resetState() {&#10;        _submitState.value = SubmitState.Idle&#10;    }&#10;}" />
+              <option name="updatedContent" value="package com.app.cashtrackapp.models&#10;&#10;import androidx.lifecycle.ViewModel&#10;import androidx.lifecycle.viewModelScope&#10;import com.app.cashtrackapp.database.classes.LancamentosHandler&#10;import com.app.cashtrackapp.entity.EntryDataType&#10;import kotlinx.coroutines.flow.MutableStateFlow&#10;import kotlinx.coroutines.flow.StateFlow&#10;import kotlinx.coroutines.launch&#10;&#10;/**&#10; * SubmitState representa todos os ESTADOS POSSÍVEIS ao tentar salvar um lançamento.&#10; * &#10; * É como um &quot;semáforo&quot; que avisa à tela o que está acontecendo:&#10; * - Idle (Parado) = esperando o usuário fazer algo&#10; * - Submitting (Enviando) = dados estão sendo salvos no Firebase&#10; * - Success (Sucesso) = dados foram salvos! Mostrar mensagem de sucesso&#10; * - Error (Erro) = algo deu errado. Mostrar mensagem de erro&#10; */&#10;sealed class SubmitState {&#10;    // Estado inicial: aguardando ação do usuário&#10;    object Idle : SubmitState()&#10;    &#10;    // Estado intermediário: está enviando os dados para o Firebase agora&#10;    object Submitting : SubmitState()&#10;    &#10;    // Estado final: dados foram salvos com sucesso!&#10;    object Success : SubmitState()&#10;    &#10;    // Estado final: erro ao salvar. Carrega a mensagem de erro&#10;    data class Error(val message: String) : SubmitState()&#10;}&#10;&#10;class EntriesDataViewModel : ViewModel() {&#10;    private val _submitState = MutableStateFlow&lt;SubmitState&gt;(SubmitState.Idle)&#10;    val submitState: StateFlow&lt;SubmitState&gt; = _submitState&#10;&#10;    fun submitEntry(type: String, value: Double, description: String, dateMillis: Long) {&#10;        if (value &lt;= 0.0) {&#10;            _submitState.value = SubmitState.Error(&quot;Valor deve ser maior que 0&quot;)&#10;            return&#10;        }&#10;        if (description.isBlank()) {&#10;            _submitState.value = SubmitState.Error(&quot;Descrição não pode ser vazia&quot;)&#10;            return&#10;        }&#10;&#10;        _submitState.value = SubmitState.Submitting&#10;&#10;        val entry = EntryDataType(&#10;            op = type,&#10;            opDate = dateMillis,&#10;            opDescription = description,&#10;            opValue = value&#10;        )&#10;&#10;        LancamentosHandler.inserirLancamento(entry) { success, error -&gt;&#10;            viewModelScope.launch {&#10;                if (success) {&#10;                    _submitState.value = SubmitState.Success&#10;                } else {&#10;                    _submitState.value =&#10;                        SubmitState.Error(error?.localizedMessage ?: &quot;Erro ao salvar&quot;)&#10;                }&#10;            }&#10;        }&#10;    }&#10;&#10;    fun resetState() {&#10;        _submitState.value = SubmitState.Idle&#10;    }&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="/MainView (snapshot).kt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="/MainView (snapshot).kt" />
+              <option name="originalContent" value="package com.app.cashtrackapp.screens.ui&#10;&#10;class MainView {&#10;&#10;}" />
+              <option name="updatedContent" value="package com.app.cashtrackapp.screens.ui&#10;&#10;import androidx.compose.runtime.Composable&#10;import androidx.compose.ui.Modifier&#10;&#10;@Composable&#10;fun MainView(modifier: Modifier = Modifier) {&#10;&#9;// Exibe a tela de lançamentos por enquanto&#10;&#9;EntriesScreen(modifier = modifier)&#10;}&#10;&#10;// Import local to avoid unused imports when file opened in IDE&#10;import androidx.compose.runtime.*&#10;import androidx.compose.ui.*&#10;import com.app.cashtrackapp.screens.ui.EntriesScreen" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="/db (snapshot).kt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="/db (snapshot).kt" />
+              <option name="originalContent" value="package com.app.cashtrackapp.utils&#10;&#10;class db {&#10;&#10;}" />
+              <option name="updatedContent" value="package com.app.cashtrackapp.utils&#10;&#10;import com.app.cashtrackapp.entity.BankDataType&#10;import com.google.firebase.database.FirebaseDatabase&#10;&#10;// Helper simples para gravar entradas no Realtime Database&#10;object db {&#10;&#9;private val database = FirebaseDatabase.getInstance()&#10;&#9;private val ref = database.getReference(&quot;entries&quot;)&#10;&#10;&#9;fun saveEntry(entry: BankDataType, onComplete: (Boolean, Exception?) -&gt; Unit) {&#10;&#9;&#9;ref.push().setValue(entry).addOnCompleteListener { task -&gt;&#10;&#9;&#9;&#9;onComplete(task.isSuccessful, task.exception)&#10;&#9;&#9;}&#10;&#9;}&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
