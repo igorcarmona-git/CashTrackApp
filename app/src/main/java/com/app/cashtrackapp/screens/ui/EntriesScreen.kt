@@ -35,6 +35,7 @@ import java.util.Calendar
 
 @Composable
 fun EntriesScreen(
+    onNavigateToTransactionsScreen: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: EntriesDataViewModel = viewModel(),
 ) {
@@ -140,7 +141,7 @@ fun EntriesScreen(
 
             Button(
                 onClick = {
-                    // Será implementado depois
+                    onNavigateToTransactionsScreen()
                 },
                 modifier = Modifier.weight(1f)
             ) {

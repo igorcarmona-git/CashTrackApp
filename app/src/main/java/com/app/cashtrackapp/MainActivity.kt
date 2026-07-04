@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
@@ -12,7 +12,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.app.cashtrackapp.screens.ui.MainView
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.app.cashtrackapp.screens.ui.EntriesScreen
+import com.app.cashtrackapp.screens.ui.transaction.TransactionsScreen
 import com.app.cashtrackapp.ui.theme.CashTrackAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,10 +34,30 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 } else {
-                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                        MainView(
+                    Scaffold(modifier = Modifier.fillMaxWidth()) { innerPadding ->
+                        val navController = rememberNavController()
+
+                        NavHost(
+                            navController,
+                            startDestination = "home",
                             modifier = Modifier.padding(innerPadding)
-                        )
+                        ) {
+                            composable("home") {
+                                EntriesScreen(
+                                    onNavigateToTransactionsScreen = {
+                                        navController.navigate("transactions")
+                                    },
+                                )
+                            }
+
+                            composable("transactions") {
+                                TransactionsScreen(
+                                    onBackClick = {
+                                        navController.popBackStack()
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
