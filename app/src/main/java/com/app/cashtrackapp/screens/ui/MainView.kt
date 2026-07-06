@@ -5,5 +5,5 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun MainView(modifier: Modifier = Modifier) {
-    EntriesScreen(modifier = modifier,)
+//    EntriesScreen(modifier = modifier,)
 }
