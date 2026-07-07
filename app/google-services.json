@@ -2,6 +2,7 @@
   "project_info": {
     "project_number": "361198828002",
     "project_id": "cashtrack-app-18276",
+    "firebase_url": "https://cashtrack-app-18276-default-rtdb.firebaseio.com",
     "storage_bucket": "cashtrack-app-18276.firebasestorage.app"
   },
   "client": [

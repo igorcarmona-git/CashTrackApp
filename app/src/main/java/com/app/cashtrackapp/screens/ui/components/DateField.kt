@@ -5,12 +5,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
 
 @Composable
 fun DateField(
@@ -19,8 +20,10 @@ fun DateField(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    val dateText = dateFormat.format(Date(dateMillis))
+    val locale = LocalConfiguration.current.locales[0]
+    val dateText = remember(dateMillis, locale) {
+        SimpleDateFormat("dd/MM/yyyy", locale).format(Date(dateMillis))
+    }
 
     OutlinedTextField(
         value = dateText,
@@ -44,4 +47,3 @@ fun DateField(
         }
     )
 }
-

@@ -1,12 +1,12 @@
 package com.app.cashtrackapp.models
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.app.cashtrackapp.database.classes.EntriesHandler
+import com.app.cashtrackapp.database.classes.EntriesRepository
 import com.app.cashtrackapp.entity.EntryDataType
+import com.app.cashtrackapp.entity.EntryTypes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 /**
  * SubmitState representa todos os ESTADOS POSSÍVEIS ao tentar salvar um lançamento.
@@ -24,13 +24,26 @@ sealed class SubmitState {
     data class Error(val message: String) : SubmitState()
 }
 
-class EntriesDataViewModel : ViewModel() {
+class EntriesDataViewModel(
+    private val entriesRepository: EntriesRepository = EntriesHandler
+) : ViewModel() {
     // StateFlow = variável "reativa" que monitora mudanças e avisa a UI
     // quando o estado muda, a tela atualiza automaticamente
     private val _submitState = MutableStateFlow<SubmitState>(SubmitState.Idle)
     val submitState: StateFlow<SubmitState> = _submitState
 
     fun submitEntry(type: String, value: Double, description: String, dateMillis: Long) {
+        if (_submitState.value is SubmitState.Submitting) {
+            return
+        }
+
+        val normalizedType = EntryTypes.normalize(type)
+
+        if (normalizedType.isBlank()) {
+            _submitState.value = SubmitState.Error("Tipo de lançamento inválido")
+            return
+        }
+
         if (value <= 0.0) {
             _submitState.value = SubmitState.Error("Valor deve ser maior que 0")
             return
@@ -41,25 +54,28 @@ class EntriesDataViewModel : ViewModel() {
             return
         }
 
+        if (dateMillis <= 0L) {
+            _submitState.value = SubmitState.Error("Data de lançamento inválida")
+            return
+        }
+
         // Enviando, estado de loading
         _submitState.value = SubmitState.Submitting
 
         // Cria o objeto que será salvo no Firebase
         val entry = EntryDataType(
-            op = type,
+            op = normalizedType,
             opDate = dateMillis,
-            opDescription = description,
+            opDescription = description.trim(),
             opValue = value
         )
 
-        EntriesHandler.inserirLancamento(entry) { success, error ->
-            viewModelScope.launch {
-                if (success) {
-                    _submitState.value = SubmitState.Success
-                } else {
-                    _submitState.value =
-                        SubmitState.Error(error?.localizedMessage ?: "Erro ao salvar")
-                }
+        entriesRepository.inserirLancamento(entry) { savedEntry, error ->
+            if (savedEntry != null && error == null) {
+                _submitState.value = SubmitState.Success
+            } else {
+                _submitState.value =
+                    SubmitState.Error(error?.localizedMessage ?: "Erro ao salvar")
             }
         }
     }

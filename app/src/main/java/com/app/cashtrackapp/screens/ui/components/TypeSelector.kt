@@ -1,18 +1,20 @@
 package com.app.cashtrackapp.screens.ui.components
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
+import com.app.cashtrackapp.entity.EntryTypes
 
 @Composable
 fun TypeSelector(
@@ -20,33 +22,42 @@ fun TypeSelector(
     onTypeSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val typesAvailable = listOf("Crédito", "Despesa")
-    var expanded by remember { mutableStateOf(false) }
+    val normalizedSelectedType = EntryTypes.normalize(selectedType)
 
-    Box(modifier = modifier) {
-        OutlinedTextField(
-            value = selectedType,
-            onValueChange = {},
-            label = { Text("Tipo") },
-            readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = true }
+    Column(modifier = modifier) {
+        Text(
+            text = "Tipo",
+            style = MaterialTheme.typography.labelLarge
         )
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth(0.9f)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            typesAvailable.forEach { type ->
-                DropdownMenuItem(
-                    text = { Text(type) },
-                    onClick = {
-                        onTypeSelected(type)
-                        expanded = false
-                    }
-                )
+            EntryTypes.available.forEach { type ->
+                val isSelected = normalizedSelectedType == type
+                val typeTag = if (type == EntryTypes.CREDIT) {
+                    "type_credit"
+                } else {
+                    "type_debit"
+                }
+
+                Row(
+                    modifier = Modifier
+                        .selectable(
+                            selected = isSelected,
+                            onClick = { onTypeSelected(type) },
+                            role = Role.RadioButton
+                        )
+                        .testTag(typeTag),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = isSelected,
+                        onClick = { onTypeSelected(type) }
+                    )
+                    Text(text = type)
+                }
             }
         }
     }

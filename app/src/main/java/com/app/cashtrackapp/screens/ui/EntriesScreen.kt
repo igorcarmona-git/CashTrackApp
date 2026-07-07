@@ -23,14 +23,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.app.cashtrackapp.entity.EntryTypes
 import com.app.cashtrackapp.models.EntriesDataViewModel
 import com.app.cashtrackapp.models.SubmitState
 import com.app.cashtrackapp.screens.ui.components.DateField
 import com.app.cashtrackapp.screens.ui.components.DescriptionField
 import com.app.cashtrackapp.screens.ui.components.TypeSelector
 import com.app.cashtrackapp.screens.ui.components.ValueField
+import com.app.cashtrackapp.utils.EntryInputParser
 import java.util.Calendar
 
 @Composable
@@ -46,9 +49,10 @@ fun EntriesScreen(
     var valueText by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var dateMillis by remember { mutableLongStateOf(Calendar.getInstance().timeInMillis) }
-    var type by remember { mutableStateOf("Crédito") }
+    var type by remember { mutableStateOf(EntryTypes.CREDIT) }
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val isSubmitting = submitState is SubmitState.Submitting
 
     // Permite dar foco programaticamente no campo de valor
     val valueFocusRequester = remember { FocusRequester() }
@@ -57,7 +61,7 @@ fun EntriesScreen(
         valueText = ""
         description = ""
         dateMillis = Calendar.getInstance().timeInMillis
-        type = "Crédito"
+        type = EntryTypes.CREDIT
         valueFocusRequester.requestFocus()
     }
 
@@ -101,6 +105,7 @@ fun EntriesScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(valueFocusRequester)
+                .testTag("entry_value")
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -109,7 +114,9 @@ fun EntriesScreen(
         DescriptionField(
             value = description,
             onValueChange = { description = it },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("entry_description")
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -127,23 +134,28 @@ fun EntriesScreen(
         Row(modifier = Modifier.fillMaxWidth()) {
             Button(
                 onClick = {
-                    val value = valueText.replace(',', '.').toDoubleOrNull() ?: -1.0
+                    val value = EntryInputParser.parseCurrency(valueText) ?: -1.0
 
                     viewModel.submitEntry(type, value, description, dateMillis)
                     //A tela automaticamente reage às mudanças de estado
                 },
+                enabled = !isSubmitting,
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 8.dp)
+                    .testTag("submit_entry")
             ) {
-                Text("Lançar")
+                Text(if (isSubmitting) "Salvando..." else "Lançar")
             }
 
             Button(
                 onClick = {
                     onNavigateToTransactionsScreen()
                 },
-                modifier = Modifier.weight(1f)
+                enabled = !isSubmitting,
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag("show_transactions")
             ) {
                 Text("Ver Tudo")
             }
@@ -153,6 +165,7 @@ fun EntriesScreen(
 
         Button(
             onClick = clearFields,
+            enabled = !isSubmitting,
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = MaterialTheme.colorScheme.onError
@@ -160,6 +173,7 @@ fun EntriesScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(end = 8.dp)
+                .testTag("clear_entry")
         ) {
             Text("Limpar")
         }
