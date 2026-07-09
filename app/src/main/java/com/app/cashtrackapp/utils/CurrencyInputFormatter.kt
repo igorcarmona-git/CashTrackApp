@@ -51,6 +51,7 @@ object CurrencyInputFormatter {
                     result.append(char)
                     decimalDigits++
                 }
+
                 (char == ',' || char == '.') && !hasDecimalSeparator -> {
                     if (result.isEmpty()) {
                         result.append('0')

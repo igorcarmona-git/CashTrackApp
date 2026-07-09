@@ -27,9 +27,15 @@ sealed class SubmitState {
 class EntriesDataViewModel(
     private val entriesRepository: EntriesRepository = EntriesHandler
 ) : ViewModel() {
-    // StateFlow = variável "reativa" que monitora mudanças e avisa a UI
-    // quando o estado muda, a tela atualiza automaticamente
+
+    // 1. O "_" é uma convenção (Backing Property) para uma variável privada e mutável.
+    // Só este ViewModel pode alterar o valor de _submitState. Isso garante que a
+    // lógica de mudança de estado esteja centralizada aqui, evitando ‘bugs’.
     private val _submitState = MutableStateFlow<SubmitState>(SubmitState.Idle)
+
+    // 2. Esta é a versão pública e imutável (apenas leitura).
+    // A UI (Compose) observa este StateFlow, mas não consegue alterá-lo diretamente.
+    // Isso protege o estado do seu ‘app’ contra modificações indevidas vindas de fora.
     val submitState: StateFlow<SubmitState> = _submitState
 
     fun submitEntry(type: String, value: Double, description: String, dateMillis: Long) {

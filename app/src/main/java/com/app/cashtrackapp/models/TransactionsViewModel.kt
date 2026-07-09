@@ -82,7 +82,9 @@ class TransactionsViewModel(
         subscription = entriesRepository.observarLancamentos { entries, error ->
             if (error != null) {
                 _uiState.value =
-                    TransactionsState.Error(error.localizedMessage ?: "Erro ao carregar lançamentos")
+                    TransactionsState.Error(
+                        error.localizedMessage ?: "Erro ao carregar lançamentos"
+                    )
             } else {
                 val sortedEntries = entries.sortedByDescending { it.opDate }
 
